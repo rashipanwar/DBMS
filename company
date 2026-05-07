@@ -1,0 +1,292 @@
+CREATE TABLE Department (
+    Dname VARCHAR(50),
+    Dnumber INT PRIMARY KEY,
+    Mgr_ssn CHAR(9),
+    Mgr_start_date DATE
+);
+
+CREATE TABLE Employee (
+    Fname VARCHAR(20),
+    Minit CHAR(1),
+    Lname VARCHAR(20),
+    Ssn CHAR(9) PRIMARY KEY,
+    Bdate DATE,
+    Address VARCHAR(100),
+    Sex CHAR(1),
+    Salary INT,
+    Super_ssn CHAR(9),
+    Dno INT,
+    FOREIGN KEY (Dno) REFERENCES Department(Dnumber)
+);
+
+
+CREATE TABLE Dept_Locations (
+    Dnumber INT,
+    Dlocation VARCHAR(50),
+    PRIMARY KEY (Dnumber, Dlocation),
+    FOREIGN KEY (Dnumber) REFERENCES Department(Dnumber)
+);
+
+CREATE TABLE Project (
+    Pname VARCHAR(50),
+    Pnumber INT PRIMARY KEY,
+    Plocation VARCHAR(50),
+    Dnum INT,
+    FOREIGN KEY (Dnum) REFERENCES Department(Dnumber)
+);
+
+CREATE TABLE Works_on (
+    Essn CHAR(9),
+    Pno INT,
+    Hours DECIMAL(5,1),
+    PRIMARY KEY (Essn, Pno),
+    FOREIGN KEY (Essn) REFERENCES Employee(Ssn),
+    FOREIGN KEY (Pno) REFERENCES Project(Pnumber)
+);
+
+CREATE TABLE Dependent (
+    Essn CHAR(9),
+    Dependent_name VARCHAR(50),
+    Sex CHAR(1),
+    Bdate DATE,
+    Relationship VARCHAR(20),
+    PRIMARY KEY (Essn, Dependent_name),
+    FOREIGN KEY (Essn) REFERENCES Employee(Ssn)
+);
+
+INSERT INTO Department VALUES
+('Research',5,'333445555','1988-05-22'),
+('Administration',4,'987654321','1995-01-01'),
+('Headquarters',1,'888665555','1981-06-19'),
+('Marketing',7,'222222222','2022-02-02');
+
+INSERT INTO Employee VALUES
+('John','B','Smith','123456789','1965-01-09','Houston','M',30000,'333445555',5),
+('Franklin','T','Wong','333445555','1955-12-08','Houston','M',40000,'888665555',5),
+('Alicia','J','Zelaya','999887777','1968-01-19','Spring','F',25000,'987654321',4),
+('Jennifer','S','Wallace','987654321','1941-06-20','Bellaire','F',43000,'888665555',4),
+('Ramesh','K','Narayan','666884444','1962-09-15','Humble','M',38000,'333445555',5),
+('Joyce','A','English','453453453','1972-07-31','Houston','F',25000,'333445555',5),
+('Ahmad','V','Jabbar','987987987','1969-03-29','Houston','M',25000,'987654321',4),
+('James','E','Borg','888665555','1937-11-10','Houston','M',55000,NULL,1),
+('Raj','K','Mehta','222222222','1975-05-05','Bellaire','M',52000,'333445555',7),
+('Priya','S','Verma','333333333','1980-03-10','Houston','F',58000,'222222222',7),
+('Neha','T','Kapoor','555555555','1978-09-09','Bellaire','F',47000,'222222222',7);
+
+INSERT INTO Dept_Locations VALUES
+(1,'Houston'),
+(4,'Stafford'),
+(5,'Bellaire'),
+(5,'Sugarland'),
+(5,'Houston'),
+(7,'Houston');
+
+INSERT INTO Project VALUES
+('ProductX',1,'Bellaire',5),
+('ProductY',2,'Sugarland',5),
+('ProductZ',3,'Houston',5),
+('Computerization',10,'Stafford',4),
+('Reorganization',20,'Houston',1),
+('Newbenefits',30,'Stafford',4),
+('MarketingProj',40,'Houston',7),
+('SalesProj',50,'Bellaire',7);
+
+INSERT INTO Works_on VALUES
+('123456789',1,32.5),
+('123456789',2,7.5),
+('666884444',3,40),
+('453453453',1,20),
+('453453453',2,20),
+('333445555',2,10),
+('333445555',3,10),
+('333445555',10,10),
+('333445555',20,10),
+('999887777',30,30),
+('999887777',10,10),
+('987987987',10,35),
+('987987987',30,5),
+('987654321',30,20),
+('987654321',20,15),
+('888665555',20,NULL),
+('222222222',40,20),
+('333333333',40,25),
+('555555555',50,30);
+
+INSERT INTO Dependent VALUES
+('333445555','Alice','F','1986-04-05','Daughter'),
+('333445555','Theodore','M','1983-10-25','Son'),
+('987654321','Abner','M','1942-02-28','Spouse'),
+('123456789','Michael','M','1988-01-04','Son'),
+('123456789','Alice','F','1988-12-30','Daughter'),
+('222222222','Raj','M','2000-01-01','Son');
+
+SELECT Ssn, Lname, Fname, Address
+FROM Employee
+WHERE Dno = 7;
+
+SELECT Bdate, Address
+FROM Employee
+WHERE Fname='Franklin' AND Minit='T' AND Lname='Wong';
+
+SELECT Fname, Lname, Salary
+FROM Employee;
+
+SELECT DISTINCT Salary
+FROM Employee;
+
+SELECT Fname, Lname
+FROM Employee
+WHERE Address LIKE '%Bellaire%';
+
+SELECT Fname, Lname
+FROM Employee
+WHERE Bdate BETWEEN '1950-01-01' AND '1959-12-31';
+
+SELECT Fname, Lname, Salary
+FROM Employee
+WHERE Dno = 5 AND Salary BETWEEN 50000 AND 60000;
+
+SELECT Fname, Lname
+FROM Employee
+WHERE Super_ssn IS NULL;
+
+SELECT E.Ssn, D.Dname
+FROM Employee E
+JOIN Department D ON E.Dno = D.Dnumber;
+
+SELECT E.Fname, E.Lname, E.Address
+FROM Employee E
+JOIN Department D ON E.Dno = D.Dnumber
+WHERE D.Dname = 'Research';
+
+SELECT P.Pnumber, P.Dnum, E.Lname, E.Address, E.Bdate
+FROM Project P
+JOIN Department D ON P.Dnum = D.Dnumber
+JOIN Employee E ON D.Mgr_ssn = E.Ssn
+WHERE P.Plocation = 'Stafford';
+
+SELECT E.Fname AS Employee, S.Fname AS Supervisor
+FROM Employee E
+LEFT JOIN Employee S ON E.Super_ssn = S.Ssn;
+
+SELECT E.Fname, D.Dname
+FROM Employee E, Department D
+
+SELECT DISTINCT P.Pnumber
+FROM Project P
+JOIN Works_on W ON P.Pnumber = W.Pno
+JOIN Employee E ON W.Essn = E.Ssn
+WHERE E.Lname = 'Narayan'
+UNION
+SELECT P.Pnumber
+FROM Project P
+JOIN Department D ON P.Dnum = D.Dnumber
+JOIN Employee E ON D.Mgr_ssn = E.Ssn
+WHERE E.Lname = 'Narayan';
+
+UPDATE Employee
+SET Salary = Salary * 1.15
+WHERE Ssn IN (
+    SELECT Essn
+    FROM Works_on W
+    JOIN Project P ON W.Pno = P.Pnumber
+    WHERE P.Pname = 'ProductX'
+);
+SELECT Fname, Salary FROM Employee
+WHERE Ssn IN (
+    SELECT Essn
+    FROM Works_on W
+    JOIN Project P ON W.Pno = P.Pnumber
+    WHERE P.Pname = 'ProductX'
+);
+
+SELECT E.Fname, P.Pname, E.Dno
+FROM Employee E
+JOIN Works_on W ON E.Ssn = W.Essn
+JOIN Project P ON W.Pno = P.Pnumber
+ORDER BY E.Dno, E.Fname;
+
+SELECT Fname
+FROM Employee
+WHERE Salary NOT IN (
+    SELECT Salary FROM Employee WHERE Dno = 10
+);
+
+SELECT E.Fname
+FROM Employee E
+JOIN Dependent D
+ON E.Ssn = D.Essn
+AND E.Fname = D.Dependent_name
+AND E.Sex = D.Sex;
+
+SELECT DISTINCT Essn
+FROM Works_on W
+JOIN Project P ON W.Pno = P.Pnumber
+WHERE P.Plocation IN ('Bellaire','Houston','Stafford');
+
+SELECT 
+SUM(Salary) AS Total_Salary,
+MAX(Salary) AS Maximum_Salary,
+MIN(Salary) AS Minimum_Salary,
+AVG(Salary) AS Average_Salary
+FROM Employee;
+
+SELECT 
+SUM(Salary) AS Total,
+COUNT(*) AS Employees,
+MAX(Salary) AS Max,
+MIN(Salary) AS Min,
+AVG(Salary) AS Avg
+FROM Employee E
+JOIN Department D ON E.Dno = D.Dnumber
+WHERE D.Dname = 'Marketing';
+
+SELECT Fname
+FROM Employee
+WHERE Salary > (
+    SELECT AVG(Salary)
+    FROM Employee
+    WHERE Dno = 10
+);
+
+SELECT Dno, COUNT(*) AS No_of_Employees, AVG(Salary) AS Avg_Salary
+FROM Employee
+GROUP BY Dno;
+
+SELECT P.Pnumber, P.Pname, COUNT(W.Essn) AS Employees
+FROM Project P
+LEFT JOIN Works_on W ON P.Pnumber = W.Pno
+GROUP BY P.Pnumber, P.Pname;
+
+UPDATE Project
+SET Plocation = 'Bellaire', Dnum = 6
+WHERE Pnumber IN (
+    SELECT Pno
+    FROM Works_on
+    GROUP BY Pno
+    HAVING COUNT(*) > 5
+);
+
+SELECT Dno, COUNT(*) 
+FROM Employee
+WHERE Salary > 40000
+GROUP BY Dno
+HAVING COUNT(*) > 10;
+
+-- Error (invalid department)
+INSERT INTO Project VALUES ('Test',99,'NY',99);
+-- Fix
+INSERT INTO Department VALUES ('NewDept',99,NULL,'2024-01-01');
+
+DELETE FROM Dependent
+WHERE Essn = '123456789';
+
+DELETE FROM Employee
+WHERE Ssn = '12345';
+
+ALTER TABLE Employee ADD Email VARCHAR(50);
+ALTER TABLE Employee DROP COLUMN Email;
+
+
+
+
